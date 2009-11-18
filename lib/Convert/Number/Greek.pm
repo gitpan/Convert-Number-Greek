@@ -23,38 +23,40 @@ use vars qw[
 	@greek_digits_uc
 ];
 
-$VERSION   = 0.01;
+$VERSION   = '0.02';
 @ISA       = 'Exporter';
 @EXPORT_OK = qw'num2greek greek2num';
 
 
 =head1 VERSION
 
-This document describes version .01 of this module, hastily released
-on 16 August, 2006.
+Version 0.02
 
 =head1 SYNOPSIS
 
-  use Convert::Number::Greek 'num2greek';
+  use Convert::Number::Greek qw'num2greek greek2num';
   
   $greek_number = num2greek 1996;
-  # $greek_number now contains a Unicode string.
+  # $greek_number now contains
+  # "\x{375}\x{3b1}\x{3e1}\x{3df}\x{3db}\x{374}"
 
-  # OR
-  
-  use Convert::Number::Greek;
-  
-  $greek_number = Convert::Number::Greek::num2greek 1996;
+  $number = greek2num "\x{3b5}\x{3c3}\x{3c4}\x{3b6}'";
+  # $number now contains 567
   
 =head1 DESCRIPTION
 
-This module provides one exportable subroutine, C<num2greek>, which
-converts an Arabic numeral to a Greek numeral in the 
-form of a Unicode string. The syntax is as follows:
+This module provides subroutines for converting between Arabic and
+Greek numbers.
+
+
+=head1 FUNCTIONS
 
 =over 4
 
 =item num2greek ( NUMBER, { OPTIONS } )
+
+num2greek converts an Arabic numeral to a Greek numeral in the form of
+a Unicode string the syntax is as follows:
 
 NUMBER is the number to convert. It should be a string of digits,
 nothing more (see L<BUGS>, below). OPTIONS (optional) is a reference
@@ -77,8 +79,6 @@ When you specify options, C<undef> is treated as false, so
 actually means
 
     num2greek $some_number, { uc => 1, stigma => 0 }
-
-=back
 
 =cut
    
@@ -119,22 +119,135 @@ sub num2greek ($;$) {
 	$ret;
 }
 
-#sub greek2num {
-#
-#}
+=item greek2num ( STRING )
 
-=pod
+=for comment
+later it will be  =item greek2num ( STRING, { OPTIONS } )
 
-The C<greek2num> function for parsing Greek numbers has yet to be
-written....
+The C<greek2num> function parses a Greek numbers and returns the
+Arabic equivalent.
 
-An object-oriented interface similar to that of
-S<C<Convert::Number::Roman>> will be implemented some day.
+STRING is a string consisting of a Greek number. Anything following
+the number will be ignored, but will raise a warning if
+S<C<use warnings 'numeric'>> is on (unless it's just whitespace).
+
+Currently no options are available.
+
+=for comment OPTIONS is a
+reference to a hash of booleans. The only option available at present
+is C<strict>, which requires the digits to be in standard
+order; id est, most significant digits first.
+
+=cut
+
+our %greek_digit_2_num = qw(
+	α	1
+	β	2
+	γ	3
+	δ	4
+	ε	5
+	ϛ	6
+	ζ	7
+	η	8
+	θ	9
+	ι	10
+	κ	20
+	λ	30
+	μ	40
+	ν	50
+	ξ	60
+	ο	70
+	π	80
+	ϟ	90
+	ρ	100
+	σ	200
+	τ	300
+	υ	400
+	φ	500
+	χ	600
+	ψ	700
+	ω	800
+	ϡ	900
+	Α	1
+	Β	2
+	Γ	3
+	Δ	4
+	Ε	5
+	Ϛ	6
+	Ζ	7
+	Η	8
+	Θ	9
+	Ι	10
+	Κ	20
+	Λ	30
+	Μ	40
+	Ν	50
+	Ξ	60
+	Ο	70
+	Π	80
+	Ϟ	90
+	Ρ	100
+	Σ	200
+	Τ	300
+	Υ	400
+	Φ	500
+	Χ	600
+	Ψ	700
+	Ω	800
+	Ϡ	900
+	ϙ	90
+	Ϙ	90
+	ᾳ	1000
+	ῃ	8000
+	ῳ	800000
+	ᾼ	1000
+	ῌ	8000
+	ῼ	800000
+);
+
+sub greek2num ($;$) {
+	my($n,$ret,$thousands,$digit) = $_[0];
+
+	$n =~ s/^\s+//;
+
+	while (length $n) {
+		$thousands = $n =~ s/^([͵,]+)// && length $1;
+		if($n =~ s/^στ//i) {
+			$digit = 6;
+		}
+		elsif(exists $greek_digit_2_num{substr $n,0,1}) {
+			$digit = $greek_digit_2_num{substr $n,0,1,''};
+		}
+		else {
+			$n =~ s/^['’ʹ´΄]?\s*//; # straight quote, smart
+			length $n or last;      # quote,  number  sign,
+			warnings::warnif(       # oxia, tonos
+			    numeric =>
+			    qq/Argument "$_[0]" isn't numeric in greek2num/
+			);
+			last;
+		}
+		$ret += $digit * 1000**$thousands;
+	}
+	$ret;
+}
+
+=back
+
+=head1 EXPORTS
+
+None by default, but you get C<num2greek> and C<greek2num> if you ask
+for them (politely).
+
+=head1 DIAGNOSTICS
+
+The greek2num function will trigger a "non-numeric" warning if you
+S<C<use warnings 'numeric'>>. 
 
 =head1 COMPATIBILITY
 
-This module has only been tested in perl 5.8.6 on Darwin. It
-definitely will I<not> work with perl versions earlier than 5.8.0.
+This module requires perl 5.8.0 or later, though the earliest version
+I have tested it with is 5.8.1.
 
 =head1 BUGS
 

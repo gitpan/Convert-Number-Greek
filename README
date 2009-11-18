@@ -1,7 +1,11 @@
-Convert::Number::Greek, version .01
+Convert::Number::Greek, version 0.02
 
-This module converts from Arabic to Greek numerals. (Conversion the
-other way has yet to be implemented.)
+This module converts between Arabic and Greek numerals.
+
+CHANGES IN VERSION 0.02
+
+Support for parsing Greek numbers has been added.
+
 
 INSTALLATION
 
@@ -35,5 +39,5 @@ COPYRIGHT AND LICENCE
 
 Copyright (C) 2006 Father Chrysostomos
 
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This program is free software; you may redistribute it and/or modify
+it under the same terms as perl.
