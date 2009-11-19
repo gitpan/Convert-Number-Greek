@@ -1,8 +1,8 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Convert-Number-Greek
-version:      0.02
-version_from: lib/Convert/Number/Greek.pm
+version:      0.02a
+version_from: 
 installdirs:  site
 requires:
     Exporter:                      0

@@ -3,6 +3,7 @@
 use Test;
 use strict;
 use utf8;
+$^W=0;
 
 plan(tests => 17);
 

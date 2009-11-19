@@ -5,6 +5,7 @@ use Test::More tests => 46;
 use strict;
 use utf8;
 use warnings;
+$^W=0;
 
 eval 'use Convert::Number::Greek  "greek2num"';
 ok($@ eq '');
@@ -62,6 +63,5 @@ cmp_ok $warnings, '==', 1;
 t '͵βζ ʹ', 2007;
 cmp_ok $warnings, '==', 2;
 no warnings 'numeric';
-diag $@;
 greek2num '͵βζ ʹ';
 cmp_ok $warnings, '==', 2;
